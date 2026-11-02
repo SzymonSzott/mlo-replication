@@ -1,0 +1,4 @@
+results/
+*.bak
+*.bak[0-9]
+__pycache__/
