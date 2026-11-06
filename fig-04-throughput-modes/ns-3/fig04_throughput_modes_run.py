@@ -53,10 +53,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(PLOT_DIR, exist_ok=True)
 
 RE_L3      = re.compile(r"Average L3 throughput \(FlowMonitor\):\s*([0-9.]+)\s*Mb/s")
-RE_MAC     = re.compile(r"MAC-level throughput .*:\s*([0-9.]+)\s*Mb/s")
-RE_PHY_EFF = re.compile(r"PHY-level effective throughput over sim time:\s*([0-9.]+)\s*Mb/s")
-RE_PHY_RATE= re.compile(r"PHY-level data rate \(bits/airtime\):\s*([0-9.]+)\s*Mb/s")
-RE_AIRTIME = re.compile(r"PHY airtime utilization:\s*([0-9.]+)\s*%")
+RE_MACRX   = re.compile(r"MacRx throughput \(STA received bits / simTime\):\s*([0-9.]+)\s*Mb/s")
 
 
 # ---------------------------------------------------------------------------
@@ -126,31 +123,22 @@ def _run_once(label, mlo_mode, num_links, rng_run):
             f.write("STDOUT:\n" + stdout + "\n\nSTDERR:\n" + result.stderr)
         raise RuntimeError(f"exit={result.returncode}, log={log}")
 
-    l3 = mac = phy_eff = phy_rate = airtime_pct = None
+    l3 = macrx = None
     for line in stdout.splitlines():
         if m := RE_L3.search(line):
             l3 = float(m.group(1))
-        elif m := RE_MAC.search(line):
-            mac = float(m.group(1))
-        elif m := RE_PHY_EFF.search(line):
-            phy_eff = float(m.group(1))
-        elif m := RE_PHY_RATE.search(line):
-            phy_rate = float(m.group(1))
-        elif m := RE_AIRTIME.search(line):
-            airtime_pct = float(m.group(1))
+        elif m := RE_MACRX.search(line):
+            macrx = float(m.group(1))
 
-    if phy_rate is None:
+    if macrx is None:
         log = os.path.join(OUTPUT_DIR, f"{_safe(label)}_rng{rng_run}_stdout.txt")
         with open(log, "w") as f:
             f.write(stdout)
-        raise RuntimeError(f"PHY-level data rate not found, log={log}")
+        raise RuntimeError(f"MacRx throughput not found, log={log}")
 
     return {
-        "L3_Mbps":                    l3,
-        "MAC_Mbps":                   mac,
-        "L1_PHY_bits_airtime_Mbps":   phy_rate,
-        "PHY_eff_over_sim_Mbps":      phy_eff,
-        "PHY_airtime_pct":            airtime_pct,
+        "L3_Mbps":    l3,
+        "MacRx_Mbps": macrx,
     }
 
 
@@ -184,8 +172,7 @@ def write_summary_csv(raw):
             })
     fieldnames = [
         "config_label", "mloMode", "numLinks", "run_idx", "RngRun",
-        "L1_PHY_bits_airtime_Mbps", "L3_Mbps", "MAC_Mbps",
-        "PHY_eff_over_sim_Mbps", "PHY_airtime_pct",
+        "MacRx_Mbps", "L3_Mbps",
     ]
     with open(SUMMARY_CSV, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
@@ -201,9 +188,9 @@ def plot_results(raw, runs_label):
 
     print("\n===== Aggregated results =====")
     for label, _, _ in CONFIGS:
-        vals = [res["L1_PHY_bits_airtime_Mbps"]
+        vals = [res["MacRx_Mbps"]
                 for _, res in raw[label]
-                if res.get("L1_PHY_bits_airtime_Mbps") is not None]
+                if res.get("MacRx_Mbps") is not None]
         if not vals:
             continue
         mn, h = ci_hw(vals)
@@ -229,10 +216,10 @@ def plot_results(raw, runs_label):
                   zorder=3)
     ax.set_xticks(x)
     ax.set_xticklabels(cfg_labels, fontsize=10)
-    ax.set_ylabel("L1 Throughput [PHY bits/airtime, Mbit/s]", fontsize=12)
+    ax.set_ylabel("MacRx throughput [Mbit/s]", fontsize=12)
     ax.set_ylim(0, cfg_means_arr.max() * 1.3)
     ax.set_title(
-        f"L1 (PHY bits/airtime) vs. MLO mode / number of links\n"
+        f"MacRx throughput vs. MLO mode / number of links\n"
         f"Mean ± {int(CI*100)}% CI  |  {runs_label}",
         fontsize=12,
     )
@@ -300,9 +287,9 @@ def main():
                 res = future.result()
                 raw[lbl].append((rr, res))
                 save_result(lbl, rr, res)
-                phy = res["L1_PHY_bits_airtime_Mbps"]
+                thr = res["MacRx_Mbps"]
                 print(f"  [{done:>3}/{total}]  {lbl:<18}  RngRun={rr}"
-                      f"  L1={phy:.2f} Mb/s")
+                      f"  MacRx={thr:.2f} Mb/s")
             except Exception as e:
                 print(f"  [{done:>3}/{total}]  [ERROR] {lbl} rng{rr}: {e}")
                 failed_jobs.append((lbl, mm, nl, rr))
@@ -318,8 +305,8 @@ def main():
                 res = run_one(lbl, mm, nl, rr)
                 raw[lbl].append((rr, res))
                 save_result(lbl, rr, res)
-                phy = res["L1_PHY_bits_airtime_Mbps"]
-                print(f"    -> L1={phy:.2f} Mb/s  [OK]")
+                thr = res["MacRx_Mbps"]
+                print(f"    -> MacRx={thr:.2f} Mb/s  [OK]")
             except Exception as e:
                 print(f"    -> [STILL FAILED] {e}")
                 still_failed.append((lbl, mm, nl, rr))

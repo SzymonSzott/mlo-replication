@@ -27,8 +27,8 @@ computed from the scenarios above.
 
 ## MATLAB
 
-Requires MATLAB R2024b with the WLAN Toolbox and the Wireless Network Simulation Library
-support package.
+Requires MATLAB R2024b with the WLAN Toolbox and the Communications Toolbox Wireless
+Network Simulation Library support package (install it from the Add-On Explorer).
 
 Each `figNN_*.m` is a function returning the throughput, the latency, or both for one
 parameter combination, depending on what the figure needs. `mlojobs.m` lists the
@@ -54,7 +54,7 @@ Copy the `.cc` file into the `scratch/` directory of an ns-3 tree, build, then r
 driver. The drivers contain build paths from the machine the simulations were run on, so
 adjust those first.
 
-`fig-10-11`, `fig-21-22-23` and `fig-25` were run with ns-3.46.1, the rest with ns-3.45.
+All results were produced with ns-3.46.1.
 
 ## Earlier repositories
 

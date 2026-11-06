@@ -4,7 +4,7 @@ NS3=~/ns-3.46.1/build/scratch/ns3.46.1-fig21_22_23_legacy_coexistence-default
 OUT=~/ns3runs/4_3b
 LOG=~/ns3runs/4_3b_attempts.log
 mkdir -p "$OUT"
-SIM=10; GUARD=5; STAS=50; WANT=5; MAXSEED=40; PAR=2
+SIM=10; GUARD=5; STAS=50; WANT=10; MAXSEED=40; PAR=2
 
 point() {
   e=$1; pct=$2

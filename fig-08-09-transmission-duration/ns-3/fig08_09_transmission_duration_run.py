@@ -5,9 +5,9 @@ Throughput Scenario #4: MPDU aggregation & TXOP limit vs. OBSS channel occupancy
 Sweep:
   nMpdus      ∈ {64, 512, 1024}
   txopLimitMs ∈ {0, 3}
-  ch2OccPct   ∈ {10, 20, 30, 40, 50, 60, 70}
+  ch2OccPct   ∈ {0, 10, 20, 30, 40, 50, 60, 70}
   ch1OccPct   ∈ {0, 10}
-  -> 3 × 2 × 7 × 2 × RUNS = 420 simulations (5 runs each)
+  -> 3 × 2 × 8 × 2 × RUNS = 960 simulations (10 runs each)
 
 Resume behaviour:
   Each completed run is saved to OUTPUT_DIR/<tag>_result.csv immediately.
@@ -37,7 +37,7 @@ from scipy import stats
 NS3_PROGRAM   = "scratch/fig08_09_transmission_duration"
 SIMTIME       = 10.0
 PAYLOAD       = 1500
-RUNS          = 5
+RUNS          = 10
 RNG_START     = 1001
 CI            = 0.95
 MAX_WORKERS   = os.cpu_count() or 8
@@ -49,7 +49,7 @@ RERUN_MISSING = True   # retry failed jobs sequentially after the parallel sweep
 
 NMDPUS_LIST  = [64, 512, 1024]
 TXOP_LIST    = [0.0, 3.0]           # ms
-CH2_OCC_LIST = list(range(10, 71, 10))  # 10..70 %
+CH2_OCC_LIST = list(range(0, 71, 10))   # 0..70 %
 CH1_OCC_LIST = [0.0, 10.0]          # %
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)

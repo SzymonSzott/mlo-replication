@@ -79,8 +79,8 @@ main(int argc, char* argv[])
                     "nMpdus must be 64, 512 or 1024");
     NS_ABORT_MSG_IF(txopLimitMs != 0.0 && txopLimitMs != 3.0,
                     "txopLimitMs must be 0 or 3");
-    NS_ABORT_MSG_IF(ch2OccPct < 10.0 || ch2OccPct > 70.0,
-                    "ch2OccPct must be 10..70");
+    NS_ABORT_MSG_IF(ch2OccPct < 0.0 || ch2OccPct > 70.0,
+                    "ch2OccPct must be 0..70");
     NS_ABORT_MSG_IF(ch1OccPct != 0.0 && ch1OccPct != 10.0,
                     "ch1OccPct must be 0 or 10");
 
@@ -104,7 +104,8 @@ main(int argc, char* argv[])
     NodeContainer mainAp;  mainAp.Create(1);
     NodeContainer mainSta; mainSta.Create(1);
 
-    // OBSS on ch106 (link 1, always present)
+    // OBSS on ch106 (link 1, only when ch2OccPct > 0)
+    bool hasObss2 = (ch2OccPct > 0.0);
     NodeContainer obss2Ap;  obss2Ap.Create(1);
     NodeContainer obss2Sta; obss2Sta.Create(1);
 
@@ -369,9 +370,10 @@ main(int argc, char* argv[])
     // Main BSS DL (saturated)
     addFlow(mainAp.Get(0), mainSta.Get(0), mainStaIf.GetAddress(0), 0.0);
 
-    // OBSS2 (ch106): paced to ch2OccPct % of channel capacity
-    addFlow(obss2Ap.Get(0), obss2Sta.Get(0), obss2StaIf.GetAddress(0),
-            ch2OccPct / 100.0 * CH_CAPACITY_MBPS);
+    // OBSS2 (ch106): paced to ch2OccPct % of channel capacity (if present)
+    if (hasObss2)
+        addFlow(obss2Ap.Get(0), obss2Sta.Get(0), obss2StaIf.GetAddress(0),
+                ch2OccPct / 100.0 * CH_CAPACITY_MBPS);
 
     // OBSS1 (ch42): paced to ch1OccPct % of channel capacity (if present)
     if (hasObss1)

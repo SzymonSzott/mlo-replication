@@ -14,7 +14,7 @@ run_one() {
 export -f run_one; export B O
 for pass in 1 2 3; do
   : > /tmp/todo_vrns3.txt
-  for m in SLO MLO; do for w in 20 40 80 160 320; do for mcs in $(seq 0 13); do for r in 1 2 3; do
+  for m in SLO MLO; do for w in 20 40 80 160 320; do for mcs in $(seq 0 13); do for r in $(seq 1 10); do
     f="$O/${m}_W${w}_M${mcs}_R${r}.csv"
     [ -s "$f" ] || echo "$m $w $mcs $r" >> /tmp/todo_vrns3.txt
   done; done; done; done

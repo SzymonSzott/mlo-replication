@@ -1,7 +1,7 @@
 """
 Runner + plotter for scratch/fig07_obss_activity
 Throughput Scenario #3: main BSS throughput vs. OBSS station count (0-10).
-Modes: SLO, STR, EMLSR  |  5 runs each  |  3 x 11 x 5 = 165 simulations.
+Modes: SLO, STR, EMLSR  |  10 runs each  |  3 x 11 x 10 = 330 simulations.
 
 Extra features vs. run_all.py:
   - RERUN_MISSING: after the parallel sweep, any failed job is retried once
@@ -28,7 +28,7 @@ NS3_PROGRAM   = "scratch/fig07_obss_activity"
 SIMTIME       = 10.0
 PAYLOAD       = 1500
 NMDPUS        = 1024
-RUNS          = 5
+RUNS          = 10
 RNG_START     = 1001
 CI            = 0.95
 MAX_WORKERS   = os.cpu_count() or 8
