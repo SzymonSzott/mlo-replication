@@ -25,6 +25,10 @@ and `mlojobs.m`, which returns the parameter combinations of a scenario.
 Figures with no folder are topology and protocol illustrations, or Discussion summaries
 computed from the scenarios above.
 
+Each folder also has a `data/` subfolder with the simulation output behind its figure, so
+the published numbers can be checked without rerunning the sweeps. `DATA.md` says which
+file belongs to which figure and what the columns mean.
+
 ## MATLAB
 
 Requires MATLAB R2024b with the WLAN Toolbox and the Communications Toolbox Wireless
